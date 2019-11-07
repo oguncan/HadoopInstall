@@ -1,1 +1,58 @@
-aa
+Single Node kurulum aşaması tamamlandıktan sonra Multi Node kurulum aşamasına geçildi. Burada master ve slave node tanımlanacak. Bir
+kullanıcıdan diğer kullanıcıya geçerken şifre sormaması için ssh ayarlamaları yapılacak. Ek olarak master için ayarlanacak olan düğümün 
+hadoop dizini içerisine master ve slave dosyaları eklenecek veya düzenlenecek. 
+
+komut satırına vi /etc/hosts yazılarak master ve slave girişlerinin ip adresleri yazılır. Örnek vermek gerekirse; 
+
+192.168.1.15 hadoop-master
+192.168.1.16 hadoop-slave-1
+192.168.1.17 hadoop-slave-2
+
+Bu işlemlerin yapılmasının ardından sonra ssh ayarlarını yapacağız. ssh için keygen oluşturulur. 
+
+ssh-keygen -t rsa
+
+ardından her master ve slave için aşağıdaki işlemler tekrarlanır. 
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop@hadoop-master
+
+Yukarıdaki işlemler slave1 ve slave2 için yapılır.
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop@hadoop-slave-1
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop@hadoop-slave-2
+
+Yukarıdaki işlemler ise master içerisinden yapılacaktır.
+
+chmod 0600 ~/.ssh/authorized_keys
+
+en son olarak yukarıdaki komut satırı yazılarak işlem sonlandırılır.
+
+Hadoop ve hadoop içerisinde bulunan ayarlamaları yapmıştık. Bu işlemleri aynı şekilde slave kısımlarına da taşımamız gerektiği için
+aşağıdaki komut satırı ile birlikte master makina içerisinde yapılan değişiklikler slave makinalar içerisine yapılacaktır.
+
+scp -r hadoop hadoop-slave-1:/opt/hadoop
+scp -r hadoop hadoop-slave-2:/opt/hadoop
+
+Bu işlemler yapıldıktan sonra single node için yapılmış ayarlamalar slave için de geçerli olacaktır.
+
+master düğümünün içerisinde bulunan etc/hadoop klasörünü izleyerek orada eğer bulunuyorsa masters ve slaves dosyaları aşağıdaki gibi
+ayarlanır aksi halde oluşturulur ve işlemler aynı şekilde yapılır.
+
+vi etc/masters içerisine aşağıdaki satır yazılır.
+
+hadoop-master
+
+vi etc/slaves içerisine girilerek aşağıdaki satır yazılarak işlem tamamlanır.
+
+hadoop-slave-1
+hadoop-slave-2
+
+ardından Single Node için yazdığımız komut satırını Multi Node içinde yazacağız. 
+
+hadoop namenode -format
+
+satırı yazılarak namenode formatlanır.
+
+start-all.sh komutu ile birlikte localhostlar başlatılır
+
+master:9870 ve master:8080 portu ile arayüzlere ulaşabiliriz...
